@@ -1,0 +1,92 @@
+### Todo API HTTP Requests
+### Base URL
+@baseUrl = http://localhost:8080/api/v1/todos
+
+### 1. Get all todos
+GET {{baseUrl}}
+
+### 2. Get all completed todos
+GET {{baseUrl}}?completed=true
+
+### 3. Get all incomplete todos
+GET {{baseUrl}}?completed=false
+
+### 4. Create a new todo
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "title": "Buy groceries today",
+  "description": "Need to buy milk, bread, and eggs from the store"
+}
+
+### 5. Create another todo
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "title": "Complete project documentation",
+  "description": "Finish writing the README and API documentation"
+}
+
+### 6. Get todo by ID (replace {id} with actual ID from create response)
+GET {{baseUrl}}/1
+
+### 7. Update a todo (replace {id} with actual ID)
+PUT {{baseUrl}}/1
+Content-Type: application/json
+
+{
+  "title": "Buy groceries - Updated",
+  "description": "Buy milk, bread, eggs, and cheese from the grocery store",
+  "completed": false
+}
+
+### 8. Mark todo as completed (replace {id} with actual ID)
+PATCH {{baseUrl}}/1/complete
+
+### 9. Mark todo as incomplete (replace {id} with actual ID)
+PATCH {{baseUrl}}/1/incomplete
+
+### 10. Search todos
+GET {{baseUrl}}/search?q=groceries
+
+### 11. Search todos by another term
+GET {{baseUrl}}/search?q=project
+
+### 12. Delete a todo (replace {id} with actual ID)
+DELETE {{baseUrl}}/1
+
+### 13. Test creating todo with validation error (title too long)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "title": "This is a very long title that exceeds the maximum allowed length of 100 characters and should trigger a validation error",
+  "description": "This should fail validation"
+}
+
+### 14. Test creating todo with missing required field
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "description": "This todo has no title and should fail validation"
+}
+
+### 15. Test getting non-existent todo
+GET {{baseUrl}}/999
+
+### Additional endpoints for testing
+
+### 16. Health check
+GET http://localhost:8080/actuator/health
+
+### 17. H2 Console (open in browser)
+GET http://localhost:8080/h2-console
+
+### 18. Swagger UI (open in browser)
+GET http://localhost:8080/swagger-ui.html
+
+### 19. OpenAPI specification
+GET http://localhost:8080/api/v3/api-docs
