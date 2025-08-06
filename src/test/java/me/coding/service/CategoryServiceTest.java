@@ -13,14 +13,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,7 +71,7 @@ class CategoryServiceTest {
         @DisplayName("Should return empty list when no categories exist")
         void shouldReturnEmptyListWhenNoCategoriesExist() {
             // Given
-            when(categoryRepository.findAll()).thenReturn(Arrays.asList());
+            when(categoryRepository.findAll()).thenReturn(Collections.emptyList());
 
             // When
             List<Category> result = categoryService.findAllCategories();
@@ -219,7 +219,7 @@ class CategoryServiceTest {
             when(categoryRepository.save(any(Category.class))).thenReturn(testCategory);
 
             // When
-            Category result = categoryService.createCategory(categoryToCreate);
+             categoryService.createCategory(categoryToCreate);
 
             // Then
             assertThat(categoryToCreate.getName(), is(equalTo("Personal")));

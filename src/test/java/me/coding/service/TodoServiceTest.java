@@ -15,14 +15,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -135,7 +135,7 @@ class TodoServiceTest {
         @DisplayName("Should return todos by completion status")
         void shouldReturnTodosByCompletionStatus() {
             // Given
-            List<Todo> completedTodos = Arrays.asList(testTodo);
+            List<Todo> completedTodos = Collections.singletonList(testTodo);
             when(todoRepository.findByCompleted(true)).thenReturn(completedTodos);
 
             // When
@@ -401,7 +401,7 @@ class TodoServiceTest {
         void shouldFilterTodosByAllParameters() {
             // Given
             LocalDate testDate = LocalDate.now();
-            List<Todo> expectedTodos = Arrays.asList(testTodo);
+            List<Todo> expectedTodos = Collections.singletonList(testTodo);
             
             when(todoRepository.findByDueDateAndImportantAndCategoryAndCompleted(
                 testDate, true, "Work", false)).thenReturn(expectedTodos);
@@ -422,7 +422,7 @@ class TodoServiceTest {
         void shouldFilterTodosByDateOnly() {
             // Given
             LocalDate testDate = LocalDate.now();
-            List<Todo> expectedTodos = Arrays.asList(testTodo);
+            List<Todo> expectedTodos = Collections.singletonList(testTodo);
             
             when(todoRepository.findByDueDate(testDate)).thenReturn(expectedTodos);
 
@@ -440,7 +440,7 @@ class TodoServiceTest {
         @DisplayName("Should return all todos when no filters applied")
         void shouldReturnAllTodosWhenNoFiltersApplied() {
             // Given
-            List<Todo> expectedTodos = Arrays.asList(testTodo);
+            List<Todo> expectedTodos = Collections.singletonList(testTodo);
             when(todoRepository.findAll()).thenReturn(expectedTodos);
 
             // When
@@ -463,7 +463,7 @@ class TodoServiceTest {
         void shouldSearchTodosByTerm() {
             // Given
             String searchTerm = "test";
-            List<Todo> expectedTodos = Arrays.asList(testTodo);
+            List<Todo> expectedTodos = Collections.singletonList(testTodo);
             
             when(todoRepository.findByTitleOrDescriptionContaining(searchTerm))
                 .thenReturn(expectedTodos);
@@ -485,7 +485,7 @@ class TodoServiceTest {
             // Given
             String searchTerm = "nonexistent";
             when(todoRepository.findByTitleOrDescriptionContaining(searchTerm))
-                .thenReturn(Arrays.asList());
+                .thenReturn(Collections.emptyList());
 
             // When
             List<Todo> result = todoService.searchTodos(searchTerm);
@@ -506,7 +506,7 @@ class TodoServiceTest {
         @DisplayName("Should return today's todos")
         void shouldReturnTodaysTodos() {
             // Given
-            List<Todo> expectedTodos = Arrays.asList(testTodo);
+            List<Todo> expectedTodos = Collections.singletonList(testTodo);
             when(todoRepository.findTodaysTodos()).thenReturn(expectedTodos);
 
             // When
@@ -523,7 +523,7 @@ class TodoServiceTest {
         @DisplayName("Should return today's todos by completion status")
         void shouldReturnTodaysTodosByCompletionStatus() {
             // Given
-            List<Todo> expectedTodos = Arrays.asList(testTodo);
+            List<Todo> expectedTodos = Collections.singletonList(testTodo);
             when(todoRepository.findTodaysTodosByCompleted(false)).thenReturn(expectedTodos);
 
             // When

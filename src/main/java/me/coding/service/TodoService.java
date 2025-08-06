@@ -1,10 +1,10 @@
 package me.coding.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.coding.dto.TodoUpdateRequest;
 import me.coding.model.Todo;
 import me.coding.repository.TodoRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

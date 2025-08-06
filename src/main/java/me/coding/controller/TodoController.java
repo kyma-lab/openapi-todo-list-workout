@@ -1,11 +1,5 @@
 package me.coding.controller;
 
-import me.coding.dto.DeleteResponse;
-import me.coding.dto.ErrorResponse;
-import me.coding.dto.TodoUpdateRequest;
-import me.coding.exception.ResourceNotFoundException;
-import me.coding.model.Todo;
-import me.coding.service.TodoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,13 +10,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.coding.dto.DeleteResponse;
+import me.coding.dto.ErrorResponse;
+import me.coding.dto.TodoUpdateRequest;
+import me.coding.exception.ResourceNotFoundException;
+import me.coding.model.Todo;
+import me.coding.service.TodoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/todos")

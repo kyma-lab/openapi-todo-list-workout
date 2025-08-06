@@ -1,7 +1,6 @@
 package me.coding.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import me.coding.dto.DeleteResponse;
 import me.coding.dto.TodoUpdateRequest;
 import me.coding.model.Todo;
 import me.coding.service.TodoService;
@@ -18,12 +17,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -90,7 +89,7 @@ class TodoControllerTest {
         @DisplayName("Should filter todos by completion status")
         void shouldFilterTodosByCompletionStatus() throws Exception {
             // Given
-            List<Todo> completedTodos = Arrays.asList(testTodo);
+            List<Todo> completedTodos = Collections.singletonList(testTodo);
             when(todoService.findTodos(true, null, null, null)).thenReturn(completedTodos);
 
             // When & Then
@@ -108,7 +107,7 @@ class TodoControllerTest {
         @DisplayName("Should filter todos by all parameters")
         void shouldFilterTodosByAllParameters() throws Exception {
             // Given
-            List<Todo> filteredTodos = Arrays.asList(testTodo);
+            List<Todo> filteredTodos = Collections.singletonList(testTodo);
             when(todoService.findTodos(false, "Work", true, LocalDate.of(2024, 1, 15)))
                     .thenReturn(filteredTodos);
 
@@ -456,7 +455,7 @@ class TodoControllerTest {
         @DisplayName("Should search todos successfully using query parameter")
         void shouldSearchTodosSuccessfully() throws Exception {
             // Given
-            List<Todo> searchResults = Arrays.asList(testTodo);
+            List<Todo> searchResults = Collections.singletonList(testTodo);
             when(todoService.searchTodos("test")).thenReturn(searchResults);
 
             // When & Then
@@ -477,7 +476,7 @@ class TodoControllerTest {
         @DisplayName("Should return empty list when no search results")
         void shouldReturnEmptyListWhenNoSearchResults() throws Exception {
             // Given
-            when(todoService.searchTodos("nonexistent")).thenReturn(Arrays.asList());
+            when(todoService.searchTodos("nonexistent")).thenReturn(Collections.emptyList());
 
             // When & Then
             mockMvc.perform(get("/api/v1/todos")
@@ -495,7 +494,7 @@ class TodoControllerTest {
         @DisplayName("Should use filter when no search query provided")
         void shouldUseFilterWhenNoSearchQuery() throws Exception {
             // Given
-            List<Todo> todos = Arrays.asList(testTodo);
+            List<Todo> todos = Collections.singletonList(testTodo);
             when(todoService.findTodos(true, null, null, null)).thenReturn(todos);
 
             // When & Then
@@ -519,7 +518,7 @@ class TodoControllerTest {
         @DisplayName("Should return today's todos")
         void shouldReturnTodaysTodos() throws Exception {
             // Given
-            List<Todo> todaysTodos = Arrays.asList(testTodo);
+            List<Todo> todaysTodos = Collections.singletonList(testTodo);
             when(todoService.findTodaysTodos()).thenReturn(todaysTodos);
 
             // When & Then
@@ -537,7 +536,7 @@ class TodoControllerTest {
         @DisplayName("Should return today's todos filtered by completion status")
         void shouldReturnTodaysTodosFilteredByCompletionStatus() throws Exception {
             // Given
-            List<Todo> todaysTodos = Arrays.asList(testTodo);
+            List<Todo> todaysTodos = Collections.singletonList(testTodo);
             when(todoService.findTodaysTodos(false)).thenReturn(todaysTodos);
 
             // When & Then

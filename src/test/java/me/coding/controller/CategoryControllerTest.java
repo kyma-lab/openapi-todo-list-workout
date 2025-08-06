@@ -15,13 +15,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -81,7 +81,7 @@ class CategoryControllerTest {
         @DisplayName("Should return empty list when no categories exist")
         void shouldReturnEmptyListWhenNoCategoriesExist() throws Exception {
             // Given
-            when(categoryService.findAllCategories()).thenReturn(Arrays.asList());
+            when(categoryService.findAllCategories()).thenReturn(Collections.emptyList());
 
             // When & Then
             mockMvc.perform(get("/api/v1/categories"))

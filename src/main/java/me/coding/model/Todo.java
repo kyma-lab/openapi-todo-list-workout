@@ -1,13 +1,13 @@
 package me.coding.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -107,13 +107,5 @@ public class Todo {
         this.important = important != null ? important : false;
         this.dueDate = dueDate;
     }
-    
-    // Explicit setters needed for service layer operations
-    public void setCompleted(Boolean completed) {
-        this.completed = completed;
-    }
-    
-    public void setImportant(Boolean important) {
-        this.important = important;
-    }
+
 }
