@@ -1,64 +1,115 @@
-### Todo API HTTP Requests
+### Todo API HTTP Requests - Updated with Resource-Oriented Design
 ### Base URL
-@baseUrl = http://localhost:8080/api/v1/todos
+@baseUrl = http://localhost:8080/api/v1
 
 ### 1. Get all todos
-GET {{baseUrl}}
+GET {{baseUrl}}/todos
 
 ### 2. Get all completed todos
-GET {{baseUrl}}?completed=true
+GET {{baseUrl}}/todos?completed=true
 
 ### 3. Get all incomplete todos
-GET {{baseUrl}}?completed=false
+GET {{baseUrl}}/todos?completed=false
 
-### 4. Create a new todo
-POST {{baseUrl}}
+### 4. Search todos using query parameter (replaces /search endpoint)
+GET {{baseUrl}}/todos?q=groceries
+
+### 5. Search todos with another term
+GET {{baseUrl}}/todos?q=project
+
+### 6. Create a new todo
+POST {{baseUrl}}/todos
 Content-Type: application/json
 
 {
   "title": "Buy groceries today",
-  "description": "Need to buy milk, bread, and eggs from the store"
+  "description": "Need to buy milk, bread, and eggs from the store",
+  "category": "Shopping",
+  "important": true,
+  "dueDate": "2024-12-31"
 }
 
-### 5. Create another todo
-POST {{baseUrl}}
+### 7. Create another todo
+POST {{baseUrl}}/todos
 Content-Type: application/json
 
 {
   "title": "Complete project documentation",
-  "description": "Finish writing the README and API documentation"
+  "description": "Finish writing the README and API documentation",
+  "category": "Work"
 }
 
-### 6. Get todo by ID (replace {id} with actual ID from create response)
-GET {{baseUrl}}/1
+### 8. Get todo by ID (replace {id} with actual ID from create response)
+GET {{baseUrl}}/todos/1
 
-### 7. Update a todo (replace {id} with actual ID)
-PUT {{baseUrl}}/1
+### 9. Update a todo completely (PUT - full replacement)
+PUT {{baseUrl}}/todos/1
 Content-Type: application/json
 
 {
   "title": "Buy groceries - Updated",
   "description": "Buy milk, bread, eggs, and cheese from the grocery store",
+  "completed": false,
+  "category": "Personal",
+  "important": true,
+  "dueDate": "2024-12-25"
+}
+
+### 10. Partial update - Mark todo as completed (PATCH - resource-oriented)
+PATCH {{baseUrl}}/todos/1
+Content-Type: application/json
+
+{
+  "completed": true
+}
+
+### 11. Partial update - Mark todo as incomplete
+PATCH {{baseUrl}}/todos/1
+Content-Type: application/json
+
+{
   "completed": false
 }
 
-### 8. Mark todo as completed (replace {id} with actual ID)
-PATCH {{baseUrl}}/1/complete
+### 12. Partial update - Mark todo as important
+PATCH {{baseUrl}}/todos/1
+Content-Type: application/json
 
-### 9. Mark todo as incomplete (replace {id} with actual ID)
-PATCH {{baseUrl}}/1/incomplete
+{
+  "important": true
+}
 
-### 10. Search todos
-GET {{baseUrl}}/search?q=groceries
+### 13. Partial update - Mark todo as not important
+PATCH {{baseUrl}}/todos/1
+Content-Type: application/json
 
-### 11. Search todos by another term
-GET {{baseUrl}}/search?q=project
+{
+  "important": false
+}
 
-### 12. Delete a todo (replace {id} with actual ID)
-DELETE {{baseUrl}}/1
+### 14. Partial update - Update multiple fields at once
+PATCH {{baseUrl}}/todos/1
+Content-Type: application/json
 
-### 13. Test creating todo with validation error (title too long)
-POST {{baseUrl}}
+{
+  "completed": true,
+  "important": false,
+  "title": "Updated title"
+}
+
+### 15. Partial update - Set due date
+PATCH {{baseUrl}}/todos/1
+Content-Type: application/json
+
+{
+  "dueDate": "2024-12-31"
+}
+
+### 16. Delete a todo (now returns JSON confirmation)
+DELETE {{baseUrl}}/todos/1
+
+### 17. Test creating todo with validation error (title too long)
+POST {{baseUrl}}/todos
 Content-Type: application/json
 
 {
@@ -66,27 +117,165 @@ Content-Type: application/json
   "description": "This should fail validation"
 }
 
-### 14. Test creating todo with missing required field
-POST {{baseUrl}}
+### 18. Test creating todo with missing required field
+POST {{baseUrl}}/todos
 Content-Type: application/json
 
 {
   "description": "This todo has no title and should fail validation"
 }
 
-### 15. Test getting non-existent todo
-GET {{baseUrl}}/999
+### Category Management
 
-### Additional endpoints for testing
+### 19. Get all categories
+GET {{baseUrl}}/categories
 
-### 16. Health check
+### 20. Create new category - Personal
+POST {{baseUrl}}/categories
+Content-Type: application/json
+
+{
+  "name": "Personal",
+  "description": "Personal tasks and activities"
+}
+
+### 21. Create new category - Work
+POST {{baseUrl}}/categories
+Content-Type: application/json
+
+{
+  "name": "Work",
+  "description": "Work-related tasks and projects"
+}
+
+### 22. Create new category - Health
+POST {{baseUrl}}/categories
+Content-Type: application/json
+
+{
+  "name": "Health",
+  "description": "Health and fitness related tasks"
+}
+
+### Advanced Filtering
+
+### 23. Filter todos by category
+GET {{baseUrl}}/todos?category=Personal
+
+### 24. Filter todos by category and completion status
+GET {{baseUrl}}/todos?category=Personal&completed=false
+
+### 25. Filter todos by important status
+GET {{baseUrl}}/todos?important=true
+
+### 26. Filter todos by important and completed status
+GET {{baseUrl}}/todos?important=true&completed=false
+
+### 27. Filter todos by important and category
+GET {{baseUrl}}/todos?important=true&category=Work
+
+### 28. Filter todos by all three parameters
+GET {{baseUrl}}/todos?important=true&category=Personal&completed=false
+
+### 29. Filter todos by due date
+GET {{baseUrl}}/todos?dueDate=2024-12-31
+
+### 30. Filter todos by due date and category
+GET {{baseUrl}}/todos?dueDate=2024-12-31&category=Work
+
+### 31. Filter todos by all four parameters
+GET {{baseUrl}}/todos?dueDate=2024-12-31&category=Work&important=true&completed=false
+
+### Special Endpoints
+
+### 32. Get today's todos
+GET {{baseUrl}}/todos/today
+
+### 33. Get today's incomplete todos
+GET {{baseUrl}}/todos/today?completed=false
+
+### 34. Get today's completed todos
+GET {{baseUrl}}/todos/today?completed=true
+
+### Test Data Creation
+
+### 35. Create important todo with due date
+POST {{baseUrl}}/todos
+Content-Type: application/json
+
+{
+  "title": "Urgent meeting preparation",
+  "description": "Prepare slides and agenda for tomorrow's board meeting",
+  "category": "Work",
+  "important": true,
+  "dueDate": "2024-12-15"
+}
+
+### 36. Create non-important todo with due date
+POST {{baseUrl}}/todos
+Content-Type: application/json
+
+{
+  "title": "Water plants",
+  "description": "Water the office plants",
+  "category": "Personal",
+  "important": false,
+  "dueDate": "2024-12-20"
+}
+
+### 37. Create todo for today
+POST {{baseUrl}}/todos
+Content-Type: application/json
+
+{
+  "title": "Daily standup",
+  "description": "Team meeting at 9:00 AM",
+  "category": "Work",
+  "important": true,
+  "dueDate": "2024-08-06"
+}
+
+### System Endpoints
+
+### 38. Health check
 GET http://localhost:8080/actuator/health
 
-### 17. H2 Console (open in browser)
+### 39. H2 Console (open in browser)
 GET http://localhost:8080/h2-console
 
-### 18. Swagger UI (open in browser)
+### 40. Swagger UI (open in browser)
 GET http://localhost:8080/swagger-ui.html
 
-### 19. OpenAPI specification
-GET http://localhost:8080/api/v3/api-docs
+### 41. OpenAPI specification
+GET http://localhost:8080/v3/api-docs
+
+### Error Testing
+
+### 42. Test 404 - Get non-existent todo
+GET {{baseUrl}}/todos/999
+
+### 43. Test 404 - Update non-existent todo
+PATCH {{baseUrl}}/todos/999
+Content-Type: application/json
+
+{
+  "completed": true
+}
+
+### 44. Test 404 - Delete non-existent todo
+DELETE {{baseUrl}}/todos/999
+
+### 45. Test validation error - Invalid JSON
+POST {{baseUrl}}/todos
+Content-Type: application/json
+
+{
+  "title": "Valid title"
+  "invalid json": missing comma
+}
+
+### 46. Test unsupported media type
+POST {{baseUrl}}/todos
+Content-Type: text/plain
+
+This should fail due to unsupported media type
