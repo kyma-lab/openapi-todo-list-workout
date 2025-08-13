@@ -24,7 +24,7 @@ Content-Type: application/json
 {
   "title": "Buy groceries today",
   "description": "Need to buy milk, bread, and eggs from the store",
-  "category": "Shopping",
+  "category": "Einkaufen",
   "important": true,
   "dueDate": "2024-12-31"
 }
@@ -34,9 +34,9 @@ POST {{baseUrl}}/todos
 Content-Type: application/json
 
 {
-  "title": "Complete project documentation",
+  "title": "Complete project documentation2",
   "description": "Finish writing the README and API documentation",
-  "category": "Work"
+  "category": "Personal "
 }
 
 ### 8. Get todo by ID (replace {id} with actual ID from create response)
@@ -156,7 +156,14 @@ Content-Type: application/json
   "name": "Health",
   "description": "Health and fitness related tasks"
 }
+### 22. Create new category - Health
+POST {{baseUrl}}/categories
+Content-Type: application/json
 
+{
+  "name": "Einkaufen",
+  "description": "Health and fitness related tasks"
+}
 ### Advanced Filtering
 
 ### 23. Filter todos by category
@@ -265,17 +272,3 @@ Content-Type: application/json
 ### 44. Test 404 - Delete non-existent todo
 DELETE {{baseUrl}}/todos/999
 
-### 45. Test validation error - Invalid JSON
-POST {{baseUrl}}/todos
-Content-Type: application/json
-
-{
-  "title": "Valid title"
-  "invalid json": missing comma
-}
-
-### 46. Test unsupported media type
-POST {{baseUrl}}/todos
-Content-Type: text/plain
-
-This should fail due to unsupported media type
