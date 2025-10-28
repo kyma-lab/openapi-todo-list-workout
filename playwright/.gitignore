@@ -1,0 +1,14 @@
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+dist/
+cucumber-report.html
+cucumber-report.json
+
+.idea
+# Environment variables
+.env
+.env.local
+.env.*.local
