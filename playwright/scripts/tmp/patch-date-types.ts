@@ -29,7 +29,8 @@ function patchDateTypes(): void {
   // This regex matches:
   // - JSDoc comment containing "Format: date-time"
   // - Followed by field name with optional/required marker and type string
-  const pattern = /(\/\*\*[^*]*\*\s*Format:\s*date-time[^*]*\*\/\s+)(\w+)(\??):\s*string;/gi;
+  // Using [\s\S]*? for non-greedy multiline matching
+  const pattern = /(\/\*\*[\s\S]*?Format:\s*date-time[\s\S]*?\*\/\s+)(\w+)(\??):\s*string;/gi;
 
   content = content.replace(pattern, (match, comment, fieldName, optional) => {
     patchCount++;
