@@ -77,48 +77,75 @@ async function generateClient(): Promise<void> {
  * Run 'npm run generate:api' to regenerate.
  */
 
-import { Fetcher } from 'openapi-typescript-fetch';
-import type { paths } from '../types/api-types';
+import { APIRequestContext } from '@playwright/test';
+import { SERVER_TS_NAME } from '../../support/server-name';
+import { ICustomWorld } from '../../support/custom-world';
 
-// Basis-URL aus Umgebungsvariablen oder Standard
-const BASE_URL = process.env.API_BASE_URL ?? 'http://localhost:8090';
+/**
+ * API Client class that uses Playwright's APIRequestContext from custom-world
+ */
+export class ApiClient {
+  constructor(private context: ICustomWorld) {}
 
-// Erstelle den Fetcher mit den generierten Typen
-const fetcher = Fetcher.for<paths>();
+  private get request(): APIRequestContext {
+    const server = this.context.servers?.[SERVER_TS_NAME];
+    if (!server) {
+      throw new Error(\`Server '\${SERVER_TS_NAME}' not found in context.servers. Make sure to initialize the server in your hooks.\`);
+    }
+    return server;
+  }
 
-// Konfiguriere den Fetcher
-fetcher.configure({
-  baseUrl: BASE_URL,
-  init: {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  },
-  // Optional: Basic Auth aus Umgebungsvariablen
-  use: [
-    async (url, init, next) => {
-      const username = process.env.API_USERNAME;
-      const password = process.env.API_PASSWORD;
+  private async fetch<T>(path: string, method: string, data?: Record<string, unknown>): Promise<{ data: T }> {
+    const options: Record<string, unknown> = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
 
-      if (username && password) {
-        const auth = Buffer.from(\`\${username}:\${password}\`).toString('base64');
-        const newInit = {
-          ...init,
-          headers: {
-            ...init.headers,
-            Authorization: \`Basic \${auth}\`,
-          },
-        };
-        return next(url, newInit);
+    if (data) {
+      // Replace path parameters
+      let finalPath = path;
+      const pathParams = new Set<string>();
+
+      // Collect all path parameters
+      const pathParamMatches = path.matchAll(/\\{([^}]+)\\}/g);
+      for (const match of pathParamMatches) {
+        pathParams.add(match[1]);
       }
 
-      return next(url, init);
-    },
-  ],
-});
+      // Replace path parameters with actual values
+      for (const [key, value] of Object.entries(data)) {
+        if (pathParams.has(key)) {
+          finalPath = finalPath.replace(\`{\${key}}\`, String(value));
+        }
+      }
 
-// API Client Methoden
-export const apiClient = {
+      // Prepare body data (exclude path parameters)
+      const bodyData: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(data)) {
+        if (!pathParams.has(key)) {
+          bodyData[key] = value;
+        }
+      }
+
+      // Add body for POST, PUT, PATCH
+      if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase()) && Object.keys(bodyData).length > 0) {
+        options.data = bodyData;
+      }
+
+      path = finalPath;
+    }
+
+    const response = await this.request.fetch(path, options);
+
+    if (!response.ok()) {
+      throw new Error(\`API request failed: \${response.status()} \${response.statusText()}\`);
+    }
+
+    const responseData = await response.json();
+    return { data: responseData as T };
+  }
 `;
 
   let content = header;
@@ -134,9 +161,10 @@ export const apiClient = {
     ['prozess', ['prozessdatenloeschung', 'prozesskettentrigger']]
   ]);
 
-  // Generiere Client-Code für jede Ressource
+  // Generiere Client-Code für jede Ressource als Getter
   const processedResources = new Set<string>();
 
+  // Generiere Getter für normale Ressourcen
   for (const [resource, methods] of groupedPaths) {
     // Überspringe, wenn bereits in einer speziellen Gruppe verarbeitet
     if (Array.from(specialGroups.values()).some(group => group.includes(resource))) {
@@ -145,49 +173,60 @@ export const apiClient = {
 
     processedResources.add(resource);
 
-    content += `  // ${resource.charAt(0).toUpperCase() + resource.slice(1)}\n`;
-    content += `  ${resource}: {\n`;
+    content += `\n  /** ${resource.charAt(0).toUpperCase() + resource.slice(1)} API methods */\n`;
+    content += `  get ${resource}() {\n`;
+    content += `    return {\n`;
 
     for (const op of methods) {
       const methodName = getMethodName(op);
-      // Füge JSDoc-Kommentar hinzu, wenn summary oder description vorhanden
+
+      // Füge JSDoc-Kommentar hinzu
       if (op.summary ?? op.description) {
-        const doc = op.summary ?? op.description ?? '';
-        content += `    /** ${doc} */\n`;
+        content += `      /** ${op.summary ?? op.description} */\n`;
       }
-      content += `    ${methodName}: fetcher.path('${op.path}').method('${op.method}').create(),\n`;
+      content += `      ${methodName}: async (data?: Record<string, unknown>) => {\n`;
+      content += `        return this.fetch('${op.path}', '${op.method.toUpperCase()}', data);\n`;
+      content += `      },\n`;
     }
 
-    content += `  },\n\n`;
+    content += `    };\n`;
+    content += `  }\n`;
   }
 
   // Füge spezielle Gruppen hinzu
   for (const [groupName, resources] of specialGroups) {
-    content += `  // ${groupName.charAt(0).toUpperCase() + groupName.slice(1)}\n`;
-    content += `  ${groupName}: {\n`;
+    content += `\n  /** ${groupName.charAt(0).toUpperCase() + groupName.slice(1)} API methods */\n`;
+    content += `  get ${groupName}() {\n`;
+    content += `    return {\n`;
 
     for (const resource of resources) {
       const resourceMethods = groupedPaths.get(resource);
       if (resourceMethods) {
         for (const op of resourceMethods) {
           const methodName = getMethodName(op);
-          // Füge JSDoc-Kommentar hinzu, wenn summary oder description vorhanden
+
+          // Füge JSDoc-Kommentar hinzu
           if (op.summary ?? op.description) {
-            const doc = op.summary ?? op.description ?? '';
-            content += `    /** ${doc} */\n`;
+            content += `      /** ${op.summary ?? op.description} */\n`;
           }
-          content += `    ${methodName}: fetcher.path('${op.path}').method('${op.method}').create(),\n`;
+          content += `      ${methodName}: async (data?: Record<string, unknown>) => {\n`;
+          content += `        return this.fetch('${op.path}', '${op.method.toUpperCase()}', data);\n`;
+          content += `      },\n`;
         }
       }
     }
 
-    content += `  },\n\n`;
+    content += `    };\n`;
+    content += `  }\n`;
   }
 
-  content += `};
-
-export default apiClient;
-`;
+  content += `}\n`;
+  content += `\n// Export factory function\n`;
+  content += `export function createApiClient(context: ICustomWorld): ApiClient {\n`;
+  content += `  return new ApiClient(context);\n`;
+  content += `}\n`;
+  content += `\n// Default export for backwards compatibility\n`;
+  content += `export default ApiClient;\n`;
 
   // Erstelle das Ausgabeverzeichnis, falls es nicht existiert
   const outputDir = path.dirname(outputPath);
