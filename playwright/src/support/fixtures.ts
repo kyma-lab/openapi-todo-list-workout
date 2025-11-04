@@ -1,4 +1,4 @@
-import { Todo, Category } from '../api/types';
+import { Todo, Category } from '../generated/types/models';
 
 /**
  * Standard-Testdaten für Cucumber-Tests

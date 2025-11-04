@@ -1,4 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8080';
+const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'http://localhost:3000';
 
 export default defineConfig({
   testDir: './tests',
@@ -6,10 +12,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  reporter: [['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: FRONTEND_BASE_URL,
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
   },
 
   projects: [
@@ -21,16 +28,16 @@ export default defineConfig({
 
   webServer: [
     {
-      command: 'echo "Backend should be running at http://localhost:8080"',
-      url: 'http://localhost:8080/actuator/health',
-      reuseExistingServer: true,
-      timeout: 5000,
+      command: 'cd ../../backend && ./mvnw spring-boot:run',
+      url: `${API_BASE_URL}/actuator/health`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
     },
     {
-      command: 'echo "Frontend should be running at http://localhost:3000"',
-      url: 'http://localhost:3000',
-      reuseExistingServer: true,
-      timeout: 5000,
+      command: 'cd ../../frontend && npm run dev',
+      url: FRONTEND_BASE_URL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
     },
   ],
 });

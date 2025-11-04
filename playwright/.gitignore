@@ -3,6 +3,8 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/playwright/traces
+.claude
 dist/
 cucumber-report.html
 cucumber-report.json
@@ -12,3 +14,7 @@ cucumber-report.json
 .env
 .env.local
 .env.*.local
+
+src/generated
+screenshots
+

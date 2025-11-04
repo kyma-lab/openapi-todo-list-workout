@@ -1,6 +1,7 @@
-import { Given, DataTable } from '@cucumber/cucumber';
-import { CustomWorld } from '../support/world';
-import { Todo, Category } from '../api/types';
+import { DataTable, Given } from '@cucumber/cucumber';
+import { CustomWorld } from '../support/custom-world';
+import { Category, Todo } from '../generated/types/models';
+import { TodoPage } from '../pages/todo-page';
 
 /**
  * Given/Angenommen Steps - Setup und Vorbedingungen
@@ -10,10 +11,69 @@ Given('die Datenbank ist leer', async function (this: CustomWorld) {
   await this.todoApi!.deleteAllTodos();
 });
 
-Given('folgende Kategorien existieren:', async function (this: CustomWorld, dataTable: DataTable) {
-  const categories = dataTable.hashes() as Category[];
+Given('ich die Todo-Anwendung geöffnet habe', async function (this: CustomWorld) {
+  const todoPage = new TodoPage(this.page!);
+  await todoPage.goto();
+});
 
-  for (const category of categories) {
+Given('ein Todo {string} existiert', async function (this: CustomWorld, todoTitle: string) {
+  const todo: Todo = {
+    title: todoTitle,
+    description: 'Test description',
+    completed: false,
+    important: true,
+    category: 'Arbeit'
+  };
+
+  const createdTodo = await this.todoApi!.createTodo(todo);
+
+  if (!this.parameters.createdTodos) {
+    this.parameters.createdTodos = [];
+  }
+  this.parameters.createdTodos.push(createdTodo);
+
+  // Reload page to show the newly created todo
+  if (this.page) {
+    await this.page.reload({ waitUntil: 'networkidle' });
+  }
+});
+
+Given('folgende Todos existieren:', async function (this: CustomWorld, dataTable: DataTable) {
+  const todos = dataTable.hashes();
+
+  for (const todoData of todos) {
+    const todo: Todo = {
+      title: todoData.title,
+      description: todoData.description,
+      completed: todoData.completed === 'true',
+      important: todoData.important !== undefined ? todoData.important === 'true' : false,
+      category: todoData.category,
+      dueDate: todoData.dueDate
+    };
+
+    const createdTodo = await this.todoApi!.createTodo(todo);
+
+    if (!this.parameters.createdTodos) {
+      this.parameters.createdTodos = [];
+    }
+    this.parameters.createdTodos.push(createdTodo);
+  }
+
+  // Reload page to show the newly created todos
+  if (this.page) {
+    await this.page.reload({ waitUntil: 'networkidle' });
+  }
+});
+
+Given('folgende Kategorien existieren:', async function (this: CustomWorld, dataTable: DataTable) {
+  const categoryData = dataTable.hashes();
+
+  for (const data of categoryData) {
+    const category: Category = {
+      name: data.name,
+      description: data.description,
+    };
+
     try {
       await this.todoApi!.createCategory(category);
     } catch (error) {
@@ -35,6 +95,7 @@ Given('folgende Todos existieren in der Datenbank:', async function (this: Custo
       category: todoData.category,
       dueDate: todoData.dueDate,
     };
+
 
     const createdTodo = await this.todoApi!.createTodo(todo);
 
@@ -66,6 +127,11 @@ Given('ein Standard-Todo existiert', async function (this: CustomWorld) {
     this.parameters.createdTodos = [];
   }
   this.parameters.createdTodos.push(createdTodo);
+
+  // Reload page to show the newly created todo
+  if (this.page) {
+    await this.page.reload({ waitUntil: 'networkidle' });
+  }
 });
 
 Given('Standard-Todos existieren', async function (this: CustomWorld) {
@@ -78,6 +144,11 @@ Given('Standard-Todos existieren', async function (this: CustomWorld) {
       this.parameters.createdTodos = [];
     }
     this.parameters.createdTodos.push(createdTodo);
+  }
+
+  // Reload page to show the newly created todos
+  if (this.page) {
+    await this.page.reload({ waitUntil: 'networkidle' });
   }
 });
 
@@ -92,6 +163,11 @@ Given('gemischte Todos existieren', async function (this: CustomWorld) {
     }
     this.parameters.createdTodos.push(createdTodo);
   }
+
+  // Reload page to show the newly created todos
+  if (this.page) {
+    await this.page.reload({ waitUntil: 'networkidle' });
+  }
 });
 
 Given('Todos mit verschiedenen Kategorien existieren', async function (this: CustomWorld) {
@@ -105,6 +181,11 @@ Given('Todos mit verschiedenen Kategorien existieren', async function (this: Cus
     }
     this.parameters.createdTodos.push(createdTodo);
   }
+
+  // Reload page to show the newly created todos
+  if (this.page) {
+    await this.page.reload({ waitUntil: 'networkidle' });
+  }
 });
 
 Given('Todos mit Suchbegriffen existieren', async function (this: CustomWorld) {
@@ -117,5 +198,10 @@ Given('Todos mit Suchbegriffen existieren', async function (this: CustomWorld) {
       this.parameters.createdTodos = [];
     }
     this.parameters.createdTodos.push(createdTodo);
+  }
+
+  // Reload page to show the newly created todos
+  if (this.page) {
+    await this.page.reload({ waitUntil: 'networkidle' });
   }
 });
