@@ -17,12 +17,14 @@ Given('ich die Todo-Anwendung geöffnet habe', async function (this: CustomWorld
 });
 
 Given('ein Todo {string} existiert', async function (this: CustomWorld, todoTitle: string) {
+  const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
   const todo: Todo = {
     title: todoTitle,
     description: 'Test description',
     completed: false,
     important: true,
-    category: 'Arbeit'
+    category: 'Arbeit',
+    dueDate: today
   };
 
   const createdTodo = await this.todoApi!.createTodo(todo);
@@ -35,11 +37,25 @@ Given('ein Todo {string} existiert', async function (this: CustomWorld, todoTitl
   // Reload page to show the newly created todo
   if (this.page) {
     await this.page.reload({ waitUntil: 'networkidle' });
+
+    // Click "Get Started" button if back on welcome page
+    try {
+      const getStartedButton = this.page.getByTestId('get-started-button');
+      await getStartedButton.click({ timeout: 2000 });
+      await this.page.waitForLoadState('networkidle');
+    } catch {
+      // Already past welcome screen
+    }
+
+    // Wait for the todo item to appear in the DOM
+    await this.page.waitForSelector(`[data-testid^="task-item-"]`, { timeout: 10000 });
+    await this.page.waitForTimeout(500); // Additional wait for animations
   }
 });
 
 Given('folgende Todos existieren:', async function (this: CustomWorld, dataTable: DataTable) {
   const todos = dataTable.hashes();
+  const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
 
   for (const todoData of todos) {
     const todo: Todo = {
@@ -48,7 +64,7 @@ Given('folgende Todos existieren:', async function (this: CustomWorld, dataTable
       completed: todoData.completed === 'true',
       important: todoData.important !== undefined ? todoData.important === 'true' : false,
       category: todoData.category,
-      dueDate: todoData.dueDate
+      dueDate: todoData.dueDate || today // Use today if dueDate not specified
     };
 
     const createdTodo = await this.todoApi!.createTodo(todo);
@@ -62,6 +78,19 @@ Given('folgende Todos existieren:', async function (this: CustomWorld, dataTable
   // Reload page to show the newly created todos
   if (this.page) {
     await this.page.reload({ waitUntil: 'networkidle' });
+
+    // Click "Get Started" button if back on welcome page
+    try {
+      const getStartedButton = this.page.getByTestId('get-started-button');
+      await getStartedButton.click({ timeout: 2000 });
+      await this.page.waitForLoadState('networkidle');
+    } catch {
+      // Already past welcome screen
+    }
+
+    // Wait for the todo items to appear in the DOM
+    await this.page.waitForSelector(`[data-testid^="task-item-"]`, { timeout: 10000 });
+    await this.page.waitForTimeout(500); // Additional wait for animations
   }
 });
 
@@ -149,6 +178,19 @@ Given('Standard-Todos existieren', async function (this: CustomWorld) {
   // Reload page to show the newly created todos
   if (this.page) {
     await this.page.reload({ waitUntil: 'networkidle' });
+
+    // Click "Get Started" button if back on welcome page
+    try {
+      const getStartedButton = this.page.getByTestId('get-started-button');
+      await getStartedButton.click({ timeout: 2000 });
+      await this.page.waitForLoadState('networkidle');
+    } catch {
+      // Already past welcome screen
+    }
+
+    // Wait for the todo items to appear in the DOM
+    await this.page.waitForSelector(`[data-testid^="task-item-"]`, { timeout: 10000 });
+    await this.page.waitForTimeout(500); // Additional wait for animations
   }
 });
 
@@ -167,6 +209,19 @@ Given('gemischte Todos existieren', async function (this: CustomWorld) {
   // Reload page to show the newly created todos
   if (this.page) {
     await this.page.reload({ waitUntil: 'networkidle' });
+
+    // Click "Get Started" button if back on welcome page
+    try {
+      const getStartedButton = this.page.getByTestId('get-started-button');
+      await getStartedButton.click({ timeout: 2000 });
+      await this.page.waitForLoadState('networkidle');
+    } catch {
+      // Already past welcome screen
+    }
+
+    // Wait for the todo items to appear in the DOM
+    await this.page.waitForSelector(`[data-testid^="task-item-"]`, { timeout: 10000 });
+    await this.page.waitForTimeout(500); // Additional wait for animations
   }
 });
 
@@ -185,6 +240,19 @@ Given('Todos mit verschiedenen Kategorien existieren', async function (this: Cus
   // Reload page to show the newly created todos
   if (this.page) {
     await this.page.reload({ waitUntil: 'networkidle' });
+
+    // Click "Get Started" button if back on welcome page
+    try {
+      const getStartedButton = this.page.getByTestId('get-started-button');
+      await getStartedButton.click({ timeout: 2000 });
+      await this.page.waitForLoadState('networkidle');
+    } catch {
+      // Already past welcome screen
+    }
+
+    // Wait for the todo items to appear in the DOM
+    await this.page.waitForSelector(`[data-testid^="task-item-"]`, { timeout: 10000 });
+    await this.page.waitForTimeout(500); // Additional wait for animations
   }
 });
 
@@ -203,5 +271,25 @@ Given('Todos mit Suchbegriffen existieren', async function (this: CustomWorld) {
   // Reload page to show the newly created todos
   if (this.page) {
     await this.page.reload({ waitUntil: 'networkidle' });
+
+    // Click "Get Started" button if back on welcome page
+    try {
+      const getStartedButton = this.page.getByTestId('get-started-button');
+      await getStartedButton.click({ timeout: 2000 });
+      await this.page.waitForLoadState('networkidle');
+    } catch {
+      // Already past welcome screen
+    }
+
+    // Wait for the todo items to appear in the DOM
+    await this.page.waitForSelector(`[data-testid^="task-item-"]`, { timeout: 10000 });
+    await this.page.waitForTimeout(500); // Additional wait for animations
   }
+});
+
+// ==================== Test-Setup Steps ====================
+
+Given('I open the browser', async function (this: CustomWorld) {
+  // Browser is already opened by the beforeEach hook
+  // This step is just for documentation
 });

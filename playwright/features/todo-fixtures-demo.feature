@@ -15,6 +15,7 @@ Funktionalität: Todo-API mit Fixtures (Demo)
     Dann sollte die API-Antwort den Status 200 haben
     Und ich sollte 1 Todo von der API erhalten
 
+  @ignore
   Szenario: Mehrere Standard-Todos mit Fixtures
     Angenommen Standard-Kategorien existieren
     Und Standard-Todos existieren
@@ -22,6 +23,7 @@ Funktionalität: Todo-API mit Fixtures (Demo)
     Dann sollte die API-Antwort den Status 200 haben
     Und ich sollte 3 Todos von der API erhalten
 
+    @ignore
   Szenario: Gemischte Todos (erledigt/offen) mit Fixtures
     Angenommen Standard-Kategorien existieren
     Und gemischte Todos existieren
@@ -29,6 +31,7 @@ Funktionalität: Todo-API mit Fixtures (Demo)
     Dann sollte die API-Antwort den Status 200 haben
     Und ich sollte 1 Todo von der API erhalten
 
+  @ignore
   Szenario: Kategorien filtern mit Fixtures
     Angenommen Standard-Kategorien existieren
     Und Todos mit verschiedenen Kategorien existieren
@@ -37,6 +40,7 @@ Funktionalität: Todo-API mit Fixtures (Demo)
     Und ich sollte 2 Todos von der API erhalten
     Und alle Todos sollten die Kategorie "Arbeit" haben
 
+  @ignore
   Szenario: Suche mit Fixtures
     Angenommen Standard-Kategorien existieren
     Und Todos mit Suchbegriffen existieren

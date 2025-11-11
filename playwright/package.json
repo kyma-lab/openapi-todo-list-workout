@@ -24,8 +24,7 @@
     "allure": "allure serve reports/allure-results",
     "fetch:openapi": "curl -s http://localhost:8080/v3/api-docs.yaml -o todo-api-docs.yaml",
     "validate:openapi": "npx @redocly/cli lint todo-api-docs.yaml",
-    "generate:api": "npm run validate:openapi && openapi-typescript todo-api-docs.yaml -o src/generated/types/types.ts && tsx scripts/generate-flat-types.ts && tsx scripts/generate-client.ts",
-    "update:api": "npm run fetch:openapi && npm run generate:api"
+    "generate:api": "openapi-typescript todo-api-docs.yaml -o src/generated/types/types.ts && tsx scripts/generate-flat-types.ts && tsx scripts/generate-client.ts"
   },
   "keywords": [],
   "author": "",

@@ -152,3 +152,10 @@ When('ich Todos per API mit Filter {string} abrufe', async function (this: Custo
 When('ich Todos per API mit Suchbegriff {string} suche', async function (this: CustomWorld, query: string) {
   await handleApiCall.call(this, this.todoApi!.getTodos({ q: query }), 200);
 });
+
+// ==================== Test-Setup Steps ====================
+
+When('I navigate to {string}', async function (this: CustomWorld, url: string) {
+  await this.page!.goto(url);
+  await this.page!.waitForLoadState('networkidle');
+});

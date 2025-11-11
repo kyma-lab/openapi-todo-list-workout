@@ -115,3 +115,17 @@ Then('alle Todos sollten die Kategorie {string} haben', function (this: CustomWo
     expect(todo.category).toBe(expectedCategory);
   }
 });
+
+// ==================== Test-Setup Steps ====================
+
+Then('I should see the page title contains {string}', async function (this: CustomWorld, expectedText: string) {
+  const title = await this.page!.title();
+  expect(title).toContain(expectedText);
+});
+
+// ==================== UI Verification Steps ====================
+
+Then('sollte ich das Todo {string} in der Liste sehen', async function (this: CustomWorld, todoTitle: string) {
+  const todoPage = new TodoPage(this.page!);
+  await todoPage.expectTodoVisible(todoTitle);
+});

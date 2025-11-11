@@ -13,21 +13,25 @@ const __dirname = path.dirname(__filename);
 const apiTypesPath = path.join(__dirname, '../src/generated/types/types.ts');
 const outputPath = path.join(__dirname, '../src/generated/types/models.ts');
 
-// Validate input file exists
-if (!fs.existsSync(apiTypesPath)) {
-  console.error(`❌ Error: Input file not found: ${apiTypesPath}`);
-  console.error('   Please run "npm run generate:api" first to generate types.ts');
-  process.exit(1);
+/**
+ * Validate that the input file exists and is readable
+ */
+function validateInputFile(): string {
+  if (!fs.existsSync(apiTypesPath)) {
+    console.error(`❌ Error: Input file not found: ${apiTypesPath}`);
+    console.error('   Please run "npm run generate:api" first to generate types.ts');
+    process.exit(1);
+  }
+
+  try {
+    return fs.readFileSync(apiTypesPath, 'utf-8');
+  } catch (error) {
+    console.error(`❌ Error reading file ${apiTypesPath}:`, error);
+    process.exit(1);
+  }
 }
 
-// Read the generated types.ts file
-let apiTypesContent: string;
-try {
-  apiTypesContent = fs.readFileSync(apiTypesPath, 'utf-8');
-} catch (error) {
-  console.error(`❌ Error reading file ${apiTypesPath}:`, error);
-  process.exit(1);
-}
+const apiTypesContent = validateInputFile();
 
 // Extrahiere Schema-Namen aus der types.ts
 function extractSchemas(content: string): string[] {
@@ -147,14 +151,24 @@ operations.forEach((operation) => {
   content += `export type ${capitalizedName}SuccessResponse = operations['${operation}'] extends { responses: { [K in 200 | 201 | 202]: { content: { 'application/json': infer D } } } } ? D : never;\n`;
 });
 
-// Write the file
-try {
-  fs.writeFileSync(outputPath, content, 'utf-8');
-  console.log('✅ Flache TypeScript-Typen erfolgreich generiert:', outputPath);
-  console.log(`   - ${schemas.length} Schema-Typen`);
-  console.log(`   - ${operations.length} Operation Request/Response-Typen`);
-  console.log(`   - ${operations.length} Helper-Typen für Success-Response-Daten`);
-} catch (error) {
-  console.error(`❌ Error writing file ${outputPath}:`, error);
-  process.exit(1);
+/**
+ * Write the generated content to the output file
+ */
+function writeOutputFile(content: string): void {
+  try {
+    // Ensure output directory exists
+    const outputDir = path.dirname(outputPath);
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    fs.writeFileSync(outputPath, content, 'utf-8');
+    console.log('✅ Flache TypeScript-Typen erfolgreich generiert:', outputPath);
+    console.log(`   - ${schemas.length} Schema-Typen`);
+    console.log(`   - ${operations.length} Operation Request/Response-Typen`);
+    console.log(`   - ${operations.length} Helper-Typen für Success-Response-Daten`);
+  } catch (error) {
+    console.error(`❌ Error writing file ${outputPath}:`, error);
+    process.exit(1);
+  }
 }
+
+writeOutputFile(content);

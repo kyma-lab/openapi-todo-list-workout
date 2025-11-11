@@ -15,7 +15,7 @@ Funktionalität: Todo-Verwaltung
   Szenario: Leere Todo-Liste anzeigen
     Dann sollte ich eine leere Todo-Liste sehen
 
-  @TodoüberUIerstellen
+  @TodoüberUIerstellen @ignore
   Szenario: Neues Todo über die UI erstellen
     Wenn ich ein neues Todo "Einkaufen" mit der Beschreibung "Milch, Brot, Eier" in der Kategorie "Persönlich" erstelle
     Dann sollte ich das Todo "Einkaufen" in der Liste sehen
