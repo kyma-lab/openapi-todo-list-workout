@@ -93,29 +93,97 @@ Szenario: Test in Entwicklung
 ### Debugging & Analyse
 
 #### `npm run debug`
-**Debug-Modus mit Playwright Inspector**
+**Debug-Modus mit Playwright Inspector (Visuelles Debugging)**
 ```bash
 npm run debug
 ```
-- Setzt `PWDEBUG=1` und `DEBUG=pw:api`
-- Öffnet Playwright Inspector
-- Step-by-Step Debugging möglich
-- Zeigt API-Calls im Detail
+
+**Was passiert:**
+- Setzt `PWDEBUG=1` → Aktiviert Playwright Inspector (GUI)
+- Setzt `DEBUG=pw:api` → Aktiviert API-Logging in der Console
+- Öffnet ein separates Inspector-Fenster mit visueller Oberfläche
+- Test pausiert automatisch und wartet auf Ihre Aktionen
+
+**Features:**
+- 🎬 **Step-by-Step Debugging**: Play/Pause/Step-Over Buttons
+- 🔍 **Element-Inspektion**: Locators live im Browser testen
+- 📸 **Visueller Zustand**: Browser-Fenster bleibt offen und sichtbar
+- 📋 **Code-Navigation**: Zeigt aktuellen Test-Code-Schritt
+- 🐛 **Breakpoints**: Pausieren an bestimmten Actions
+
+**Wann verwenden:**
+- ✅ Test schlägt fehl und Sie wissen nicht warum
+- ✅ Element wird nicht gefunden (Locator-Debugging)
+- ✅ Timing-Probleme analysieren
+- ✅ Erste Entwicklung neuer Tests
+
+**Beispiel-Ablauf:**
+```
+1. npm run debug
+2. Inspector öffnet sich
+3. Browser startet sichtbar
+4. Test pausiert vor jeder Action
+5. Sie klicken "Play" oder "Step Over"
+6. Element-Selektoren können live getestet werden
+```
 
 **Verwendung:** Bei fehlschlagenden Tests zur Root-Cause-Analyse
 
 ---
 
 #### `npm run api`
-**API-Debugging**
+**API-Debugging (Console-Only, kein GUI)**
 ```bash
 npm run api
 ```
-- Setzt `DEBUG=pw:api`
-- Zeigt detaillierte Playwright API-Logs
-- Ohne visuelles Debugging
 
-**Verwendung:** Performance-Analyse, API-Call-Tracing
+**Was passiert:**
+- Setzt `DEBUG=pw:api` → Aktiviert detailliertes Playwright API-Logging
+- **Kein `PWDEBUG=1`** → Kein Inspector, kein GUI
+- Test läuft normal durch (nicht im Step-by-Step-Modus)
+- Ausgabe nur in der Console/Terminal
+
+**Features:**
+- 📊 **API-Call-Logging**: Alle Playwright-Methoden werden geloggt
+- ⚡ **Volle Geschwindigkeit**: Test läuft in normaler Geschwindigkeit
+- 📝 **Console-Output**: Detaillierte Logs zum Nachvollziehen
+- 🔎 **Keine UI**: Headless oder normaler Browser, aber ohne Inspector-GUI
+
+**Console-Output-Beispiel:**
+```
+pw:api   page.goto(http://localhost:3000) +0ms
+pw:api   page.getByRole('button', { name: 'Erstellen' }) +120ms
+pw:api   locator.click() +45ms
+pw:api   page.waitForResponse() +230ms
+```
+
+**Wann verwenden:**
+- ✅ Performance-Analyse (wie lange dauern API-Calls?)
+- ✅ Verstehen, welche Playwright-APIs aufgerufen werden
+- ✅ Log-Dateien für CI/CD-Debugging
+- ✅ Test läuft durch, aber Sie wollen Details sehen
+- ✅ Zu viel Output im Inspector → nur Console-Logs bevorzugt
+
+**Verwendung:** Performance-Analyse, API-Call-Tracing ohne visuelle Unterbrechung
+
+---
+
+**🔑 Hauptunterschied:**
+
+| Feature | `npm run debug` | `npm run api` |
+|---------|----------------|---------------|
+| **Playwright Inspector GUI** | ✅ Ja | ❌ Nein |
+| **Browser sichtbar** | ✅ Ja, pausiert | ⚠️ Optional (headless möglich) |
+| **Step-by-Step-Modus** | ✅ Ja | ❌ Nein |
+| **API-Logging** | ✅ Ja | ✅ Ja |
+| **Geschwindigkeit** | 🐢 Langsam (manuell) | ⚡ Schnell (automatisch) |
+| **Verwendung** | UI-Debugging, Locators testen | Performance, Logs analysieren |
+
+**Entscheidungshilfe:**
+- **Test schlägt fehl → Element nicht gefunden?** → `npm run debug`
+- **Test läuft, aber langsam?** → `npm run api`
+- **Timing-Problem?** → `npm run debug`
+- **CI-Log analysieren?** → `npm run api`
 
 ---
 
@@ -129,6 +197,132 @@ npm run video
 - Videos in `test-results/`
 
 **Verwendung:** CI/CD, Bug-Reports, Dokumentation
+
+---
+
+#### Trace-Analyse (Playwright Trace Viewer)
+**Traces verstehen und auswerten**
+
+**Was sind Traces?**
+Playwright Traces sind detaillierte Aufzeichnungen, die **alles** während der Testausführung erfassen:
+- Screenshots bei jedem Action
+- DOM-Snapshots (vollständige HTML-Struktur)
+- Netzwerk-Requests/Responses
+- Console-Logs
+- Playwright-API-Calls
+- Timing-Informationen
+
+**Traces öffnen und analysieren:**
+
+```bash
+# Trace-Dateien befinden sich in:
+traces/
+├── trace-<szenario-name>-<timestamp>.zip
+
+# Trace im Browser öffnen:
+npx playwright show-trace traces/trace-<name>.zip
+
+# Oder: Online Trace Viewer verwenden
+# → https://trace.playwright.dev
+# → Drag & Drop der .zip-Datei
+```
+
+**Trace Viewer Features:**
+
+1. **Timeline (Zeitleiste)** 🕐
+   - Zeigt jeden Test-Schritt chronologisch
+   - Klicken Sie auf einen Schritt → Screenshot + Details
+   - Rot markierte Schritte = fehlgeschlagene Actions
+
+2. **Actions Tab** 🎬
+   - Liste aller Playwright-Befehle
+   - Dauer jeder Action
+   - Input-Parameter
+   - Klick öffnet Snapshot zu diesem Zeitpunkt
+
+3. **Metadata Tab** 📋
+   - Browser-Version
+   - Test-Datei und Zeile
+   - Fehlermeldungen
+   - Environment-Variablen
+
+4. **Source Tab** 💻
+   - Zeigt Test-Code
+   - Highlightet aktuellen Schritt
+   - Navigation zwischen Steps
+
+5. **Network Tab** 🌐
+   - Alle HTTP-Requests/Responses
+   - Status-Codes
+   - Request/Response-Bodies
+   - Timing-Informationen
+
+6. **Console Tab** 📝
+   - Browser-Console-Logs
+   - Errors und Warnings
+   - `console.log()` Ausgaben
+
+7. **Snapshots** 📸
+   - DOM-Zustand zu jedem Zeitpunkt
+   - Interaktiv: Elements inspizieren
+   - Locators live testen
+
+**Typische Analyse-Workflows:**
+
+**Szenario 1: Element nicht gefunden**
+```
+1. Trace öffnen
+2. Actions Tab → Suche nach rotem Schritt (z.B. "locator.click")
+3. Snapshot ansehen → Element im DOM vorhanden?
+4. Network Tab → Wurde API-Call abgeschlossen?
+5. Console Tab → JavaScript-Fehler?
+```
+
+**Szenario 2: Timing-Problem**
+```
+1. Timeline ansehen
+2. Lange Pausen zwischen Actions?
+3. Network Tab → Langsame API-Requests?
+4. Snapshot → Element wartet auf Daten?
+```
+
+**Szenario 3: Falscher Wert/Zustand**
+```
+1. Actions Tab → Letzter "fill" oder "click"
+2. Snapshot öffnen → Aktueller DOM-Zustand
+3. Network Tab → Response-Body prüfen
+4. Console Tab → Fehler in JavaScript?
+```
+
+**Wann werden Traces erstellt?**
+
+Standardmäßig in der `playwright.config.ts`:
+```typescript
+use: {
+  trace: 'retain-on-failure',  // Nur bei Fehlern
+  // oder:
+  trace: 'on',                 // Immer (langsamer!)
+}
+```
+
+**Trace manuell für einzelnen Test:**
+```typescript
+test('Mein Test', async ({ page }) => {
+  await page.context().tracing.start({ screenshots: true, snapshots: true });
+
+  // Test-Code hier
+
+  await page.context().tracing.stop({ path: 'traces/custom-trace.zip' });
+});
+```
+
+**Best Practice:**
+- ✅ `retain-on-failure` für lokale Entwicklung
+- ✅ `on-first-retry` für CI/CD (Speicherplatz sparen)
+- ✅ Traces nach Analyse löschen (können groß werden!)
+- ✅ In CI: Traces als Artifacts hochladen
+
+**Verwendung:** Post-Mortem-Analyse fehlgeschlagener Tests, komplexe Debugging-Fälle
 
 ---
 
